@@ -1,121 +1,65 @@
 # Nua E-Commerce Web App
 
-A premium, interactive e-commerce single-page application built using React, Vite, and SCSS modules. The app integrates with the Fake Store API and enhances it with custom-generated, deterministic product variants (size, color, and stock) to provide a high-fidelity retail experience.
+A clean, responsive e-commerce web application built using React, Vite, and SCSS. It pulls product data from the Fake Store API and dynamically enriches it with custom color and size variants, stock limits, and secondary images to simulate a real-world shopping experience.
 
 ---
 
-## 🚀 Getting Started
+## 🚀 How to Run the App
 
-Follow these steps to run the application locally on your machine.
+First, make sure you have **Node.js** installed on your system. 
 
-### Prerequisites
-
-Ensure you have one of the following package managers installed:
-- **Bun** (recommended)
-- **Node.js** (v18+) and **npm** or **Yarn**
-
-### Installation
-
-1. Clone or download the repository.
-2. Open your terminal in the project root directory (`Nua-app`).
-3. Install the dependencies:
-
+1. Install all dependencies:
    ```bash
-   # Using Bun
+   # If you use Bun (recommended)
    bun install
 
-   # Or using npm
+   # If you prefer npm
    npm install
 
-   # Or using Yarn
+   # If you prefer Yarn
    yarn install
    ```
 
-### Running the Development Server
+2. Start the local development server:
+   ```bash
+   bun run dev   # or: npm run dev
+   ```
+   Open your browser to the local URL (usually `http://localhost:5173`).
 
-Start the local development server with hot module replacement (HMR):
-
-```bash
-# Using Bun
-bun run dev
-
-# Or using npm
-npm run dev
-
-# Or using Yarn
-yarn run dev
-```
-
-The server will spin up, usually at `http://localhost:5173`. Open this URL in your web browser.
-
-### Building for Production
-
-To create an optimized production build in the `dist` folder:
-
-```bash
-# Using Bun
-bun run build
-
-# Or using npm
-npm run build
-```
-
-### Previewing the Production Build
-
-To preview the built production app locally:
-
-```bash
-# Using Bun
-bun run preview
-
-# Or using npm
-npm run preview
-```
+3. To build and preview the production package:
+   ```bash
+   bun run build
+   bun run preview   # or: npm run build / npm run preview
+   ```
 
 ---
 
-## 🎨 Features & Architecture
+## 🛠️ How it Works & Technical Choices
 
-- **Interactive Product Catalog**: Supports searching, filtering by category, and sorting (by popularity, price, rating) with responsive layout grids.
-- **Deep-Linkable Product Detail Page**: Selecting variant combinations (colors and sizes) automatically synchronizes with the URL search parameters (`?color=...&size=...`), allowing users to share exact product configurations.
-- **Slide-out Cart Drawer**: A persistent shopping cart synchronized with `localStorage` featuring stock limit validation, real-time total updates, and quantity controls.
-- **Mock Variant Generation Layer**: Automatically enriches standard Fake Store API data with deterministic, seed-based product variants, pricing adjustments, custom brand names, and Unsplash-powered image galleries.
+### 1. Handling URL Parameters and Variant Fallbacks
+A key requirement was keeping product variant selections (like color and size) deep-linkable. If you share a URL like `?color=Sage+Green&size=M`, the detail page should load that exact combination.
 
----
+However, since the Fake Store API doesn't return colors or sizes, I had to generate them on the client. This introduces an edge case: **what if a user manually edits the URL query string to select a color/size that is out of stock, or doesn't exist?**
 
-## 🧠 Design Decisions
+Instead of breaking the page or showing a generic "Out of Stock" screen, I set up a dual-synchronization strategy:
+- The component reads the URL parameters on mount and validates them against the product's generated variant matrix.
+- If the URL contains an invalid combination (or a size that is sold out for the selected color), it immediately calculates a safe fallback (the first available in-stock option).
+- It then sets the local React state to this fallback and silently updates the URL query string to match. This ensures that sharing a link always lands another user on a purchasable product state.
 
-### 1. Dual-Sync State Management for Product Variants
-* **Context**: The `ProductDetailPage` must support direct links to specific product variant configurations (e.g., `?color=Sage+Green&size=M`).
-* **Decision**: We implemented a dual-synchronization strategy (local state synchronized with URL search parameters) instead of relying strictly on URL search parameters as the absolute source of truth.
-* **Why**: The Fake Store API does not provide color, size, or variant stock data. Since variants are generated client-side, we must validate requested URL variant params against the product's generated variant matrix on mount. If a user enters an invalid color or size (e.g., a size that is sold out for that color), the state initializer corrects the selection to the first available fallback option and updates the query parameters. This keeps the URL always pointing to a purchasable configuration.
+### 2. Seed-Based Mock Variants
+Because there's no backend database, keeping variants, brand names, and image galleries consistent across page navigation was a challenge. If they randomized on every page load, a product in your cart might show up as a different color or brand later.
 
-### 2. Seed-Based Deterministic Mock Data Generator
-* **Context**: We need to expand standard API data with complex, consistent product variants across listing, details, and cart views.
-* **Decision**: We created a math-based seeded random generator in `src/utils/mockGenerator.js` using the product's ID as the seed.
-* **Why**: This ensures that a product (e.g., ID 3) will always resolve to the exact same brand ("Solstice & Co."), the same colors, same size stock limits, and same secondary images on every page load and across all separate components, without needing a persistent back-end database.
+To solve this, I wrote a seed-based pseudo-random generator in `src/utils/mockGenerator.js` using the product's ID as the seed. This mathematical trick ensures that a product (like ID 5) will **always** render with the exact same brand name, the same colors, the same stock constraints, and the same category-themed gallery images every single time, without needing a database.
 
-### 3. Styled Design System via SCSS Modules
-* **Context**: Maintaining a premium, visual-heavy design across components.
-* **Decision**: Built a central design token system in `src/styles/_variables.scss` and `src/styles/_mixins.scss` with modular page-level SCSS stylesheets.
-* **Why**: Utilizing variables for HSL color scales (Indigo/Amber), Outfit typography, fluid spacing, shadow systems, and glassmorphic blurs ensures visual consistency. Using CSS modules avoids global namespace collisions.
+### 3. Styles
+The styling is written in vanilla SCSS using CSS Modules to keep classes scoped and prevent collisions. Global variables (`src/styles/_variables.scss`) house the color scheme (an indigo and warm amber theme), custom typography, fluid spacing, and transitions.
 
 ---
 
-## ⚖️ Known Trade-offs & Future Enhancements
+## ⚖️ Trade-offs & Next Steps
 
-### 1. Auto-Correcting Deep Links (User-Initiated URL Edits)
-* **Trade-off**: If a user types or pastes a deep link containing an invalid or sold-out variant combination, the page will automatically correct the URL search parameters to a valid fallback variant. While this guarantees the page is never in a broken state, it might surprise a user who expected their manual input to persist.
-* **Alternative**: Show an "Out of Stock" or "Invalid Variant" banner instead of auto-correcting, but that creates additional visual paths and friction.
+If I had more time, here are the main things I would address or change:
 
-### 2. Client-Side Stock Limit Enforcement
-* **Trade-off**: The shopping cart prevents users from adding items beyond their variant stock limit. This logic relies purely on client-side state (`CartContext`). 
-* **Impact**: In a multi-user production environment, client-side validation is susceptible to race conditions and must be mirrored on the API/database layer.
-
-### 3. Sass `@import` Deprecation
-* **Trade-off**: We used standard Sass `@import` syntax in some stylesheet imports. Modern Dart Sass deprecates global imports in favor of `@use` and `@forward` modules.
-* **Remedy**: We plan to refactor the style configuration files to Dart Sass modern imports to silence console build warnings.
-
-### 4. Fetching without API Cache Layer
-* **Trade-off**: Direct navigation triggers API calls to `fakestoreapi.com` on every page load.
-* **Remedy**: Introducing TanStack Query (React Query) is a key next step to cache fetched products and implement loading skeleton shimmers.
+* **Sass `@import` Warnings**: The stylesheets currently use global `@import` rules. Modern versions of Sass deprecate this in favor of `@use` and `@forward` modules. Refactoring the imports is on my checklist to get rid of terminal build warnings.
+* **No API Caching**: Navigating back and forth between the product list and detail pages sends fresh fetch requests to the API. In a real-world app, I would implement **React Query (TanStack Query)** to cache API responses and prevent unnecessary network requests.
+* **Client-Side Stock Checks**: Since we have no database, stock limits are validated in `CartContext`. While this works perfectly to restrict a single user from buying more than what is available, in production, stock validation would need to run server-side to prevent concurrency conflicts.
