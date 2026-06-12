@@ -1,26 +1,20 @@
 # Architectural Decisions & Retrospective
 
-## 1. Architectural Decision: Deep-Linkable Variant State Management
+## The Big Decision: How to sync URL Params with Variant State
 
-For the deep-linkable product detail page variant selections, we had two main approaches:
+One choice I spent some time debating was how to implement the deep-linkable variant selections (size and color) on the product page. I had two main approaches:
 
-*   **Option A: URL search parameters as the absolute source of truth.** Read search params directly in components and dispatch router navigations (e.g. `setSearchParams`) to trigger selection changes.
-*   **Option B: Dual-sync state (Selected variant local state synchronized with URL search parameters).** Keep local React state for `selectedColor` and `selectedSize`, initializing them from URL params on load, and write updates back to search params asynchronously on change.
+1. **URL as the absolute source of truth**: Read directly from the search parameters (via React Router's `useSearchParams`) inside the component and use navigation updates to trigger variant changes.
+2. **Dual-sync state (Local state + URL sync)**: Hold local state for `selectedColor` and `selectedSize`, initialize them from the URL query string on page load, and push updates back to the URL search params when a user changes their selection.
 
-### Why Option B was Chosen
+I went with **Option 2 (Dual-sync)**, mostly because of how the mock variant data is generated. Since the Fake Store API doesn't provide variants, I generate color/size options and stock limits on the fly using a seeded randomizer. 
 
-Option B was selected because it guarantees a robust fallback strategy and high-fidelity UX. 
-The Fake Store API contains no variant information. When generating deterministic mock color/size variants, we must account for variant availability and sold-out states. If we relied strictly on URL parameters as the sole state (Option A), handling edge cases (like a user manually editing the URL to an invalid color, or loading a size that is sold out for the primary color) becomes highly complex. 
-
-Using Option B, on component mount we validate the URL parameters against the product's generated variant matrix. If valid, we apply them. If invalid (e.g. `size=XXL` or `size=S` when S is sold out), our state initializer computes a safe fallback (e.g., the first in-stock size for the active color) and updates both the local state and URL query string. This prevents bad deep links from breaking the UI and ensures the deep-linked variant always represents a purchasable configuration.
+If I had treated the URL as the absolute source of truth (Option 1), handling invalid URLs (like a user manually typing `size=XXL` or pointing to a sold-out variant) would get messy and require constant redirect logic. By using local state as the coordinator, I can run a quick validation check on mount. If the URL parameters are valid and in stock, we use them. If they are invalid or sold out, the state initializer computes a safe fallback (e.g., the first available color and size in stock), sets the state, and updates the URL. This guarantees that deep links never land a user on a broken page or a selection they can't actually purchase.
 
 ---
 
-## 2. Future Improvements & What I'd Do Differently
+## What I'd do differently with more time
 
-Given additional time, I would focus on the following production-readiness enhancements:
-
-1.  **Refactoring to Modern Sass Syntax:** Modern Dart Sass deprecates `@import` and global color adjustments (`lighten`, `darken`). I would refactor the styling system to use the modern `@use` and `@forward` modules alongside `color.adjust($color, $lightness: ...)` to guarantee forward compatibility and silence build deprecation warnings.
-2.  **State Caching and API Layering:** Navigating between `/` and `/product/:id` triggers frequent refetches from `fakestoreapi.com`. I would introduce TanStack Query (React Query) to cache product queries and handle loading/error transitions declaratively.
-3.  **Comprehensive Test Coverage:** Write unit tests for `CartContext` using Vitest to verify stock-limit enforcement, compound variant key generations, and localStorage sync. I would also add Cypress integration tests to validate the Cart Drawer backdrop closures.
-4.  **Skeleton Loading Optimization:** Refine the Shimmer animations by generating exact image dimensions using CSS Aspect-Ratios, minimizing layout shift (CLS) when images load.
+* **Dart Sass Refactoring**: Right now, the style system uses standard Sass `@import` rules and color adjusters. Dart Sass is deprecating these, and they throw a lot of warnings during building. With more time, I'd refactor these to use the modern `@use` syntax and `color.adjust` to keep the build logs clean.
+* **API Caching**: Currently, every navigation between the product list and detail pages fires a new network request to `fakestoreapi.com`. I would introduce TanStack Query (React Query) to cache the catalog data and handle loading/error states cleaner than standard `useState` hooks.
+* **Writing Tests**: I'd write unit tests for `CartContext` to verify that stock limits are properly enforced, and add Cypress or Playwright tests to test the slide-out behavior of the cart drawer.
