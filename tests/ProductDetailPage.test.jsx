@@ -2,19 +2,19 @@ import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react';
 import React from 'react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
-import ProductDetailPage from './ProductDetailPage';
-import { useCart } from '../../context/CartContext';
+import ProductDetailPage from '../src/pages/ProductDetailPage/ProductDetailPage';
+import { useCart } from '../src/context/CartContext';
 
 // Mock CartContext
 const mockAddToCart = vi.fn();
-vi.mock('../../context/CartContext', () => ({
+vi.mock('../src/context/CartContext', () => ({
   useCart: () => ({
     addToCart: mockAddToCart
   })
 }));
 
 // Mock the mock generator to have fixed deterministic variants for testing
-vi.mock('../../utils/mockGenerator', () => ({
+vi.mock('../src/utils/mockGenerator', () => ({
   getEnrichedProduct: vi.fn((product) => ({
     ...product,
     brand: 'Test Brand',
