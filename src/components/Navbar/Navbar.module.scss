@@ -1,0 +1,134 @@
+@import '../../styles/variables';
+@import '../../styles/mixins';
+
+.navbarHeader {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: $navbar-height;
+  width: 100%;
+  @include glass;
+  border-bottom: 1px solid $border-color;
+  @include flex-center;
+}
+
+.navbarContainer {
+  @include flex-between;
+  width: 100%;
+}
+
+.logo {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  color: $text-primary;
+  display: flex;
+  align-items: center;
+  user-select: none;
+  
+  .logoDot {
+    color: $primary;
+    margin-left: 1px;
+  }
+  
+  &:hover {
+    color: $primary;
+  }
+}
+
+.navMenu {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xl;
+  
+  @include mobile {
+    display: none; // Hide on mobile for clean design or can be collapsed
+  }
+}
+
+.navLink {
+  font-size: 0.95rem;
+  font-weight: $font-weight-medium;
+  color: $text-secondary;
+  position: relative;
+  padding: $spacing-xs 0;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: $primary;
+    transition: width $transition-fast ease-in-out;
+  }
+  
+  &:hover {
+    color: $text-primary;
+    
+    &::after {
+      width: 100%;
+    }
+  }
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+}
+
+.cartBtn {
+  position: relative;
+  @include flex-center;
+  width: 44px;
+  height: 44px;
+  border-radius: $radius-round;
+  color: $text-primary;
+  background-color: transparent;
+  transition: background-color $transition-fast, color $transition-fast;
+  
+  &:hover {
+    background-color: $bg-secondary;
+    color: $primary;
+  }
+  
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.cartIcon {
+  font-size: 1.35rem;
+}
+
+.badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background-color: $primary;
+  color: $white;
+  font-size: 0.75rem;
+  font-weight: $font-weight-bold;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  padding: 0 4px;
+  @include flex-center;
+  border: 2px solid $white;
+  animation: badgePop 0.35s $transition-spring;
+}
+
+@keyframes badgePop {
+  0% {
+    transform: scale(0.6);
+  }
+  50% {
+    transform: scale(1.3);
+  }
+  100% {
+    transform: scale(1);
+  }
+}

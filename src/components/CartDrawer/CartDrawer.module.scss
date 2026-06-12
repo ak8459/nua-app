@@ -1,0 +1,345 @@
+@import '../../styles/variables';
+@import '../../styles/mixins';
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(24, 24, 38, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  justify-content: flex-end;
+  animation: fadeInOverlay 0.25s ease-out;
+}
+
+.drawer {
+  width: 100%;
+  max-width: $cart-drawer-width;
+  height: 100%;
+  background-color: $card-bg;
+  box-shadow: $shadow-lg;
+  display: flex;
+  flex-direction: column;
+  animation: slideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+@keyframes fadeInOverlay {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.header {
+  height: $navbar-height;
+  padding: 0 $spacing-lg;
+  border-bottom: 1px solid $border-color;
+  @include flex-between;
+  
+  .headerTitle {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    color: $text-primary;
+    
+    svg {
+      font-size: 1.35rem;
+      color: $primary;
+    }
+    
+    h2 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+    
+    .itemCount {
+      font-size: 1rem;
+      color: $text-secondary;
+      font-weight: $font-weight-medium;
+    }
+  }
+}
+
+.closeBtn {
+  width: 36px;
+  height: 36px;
+  border-radius: $radius-round;
+  @include flex-center;
+  color: $text-secondary;
+  transition: background-color $transition-fast, color $transition-fast;
+  
+  svg {
+    font-size: 1.35rem;
+  }
+  
+  &:hover {
+    background-color: $bg-secondary;
+    color: $text-primary;
+  }
+}
+
+.itemsContainer {
+  flex: 1;
+  overflow-y: auto;
+  padding: $spacing-lg;
+  @include custom-scrollbar;
+}
+
+.emptyState {
+  height: 100%;
+  @include flex-center;
+  flex-direction: column;
+  text-align: center;
+  padding: $spacing-xxl 0;
+  
+  .emptyIcon {
+    width: 80px;
+    height: 80px;
+    border-radius: $radius-round;
+    background-color: $bg-secondary;
+    @include flex-center;
+    margin-bottom: $spacing-lg;
+    
+    svg {
+      font-size: 2.2rem;
+      color: $text-muted;
+    }
+  }
+  
+  .emptyText {
+    color: $text-secondary;
+    font-size: 1.05rem;
+    margin-bottom: $spacing-xl;
+  }
+}
+
+.shopBtn {
+  background-color: $primary;
+  color: $white;
+  padding: $spacing-md $spacing-xl;
+  border-radius: $radius-md;
+  font-weight: $font-weight-semibold;
+  box-shadow: $shadow-md;
+  transition: background-color $transition-fast, transform $transition-fast;
+  
+  &:hover {
+    background-color: $primary-hover;
+    transform: translateY(-2px);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.itemsList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+}
+
+.cartItem {
+  display: flex;
+  gap: $spacing-md;
+  padding-bottom: $spacing-lg;
+  border-bottom: 1px solid $border-color;
+  align-items: flex-start;
+  
+  &:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+}
+
+.thumbnail {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  background-color: $white;
+  border: 1px solid $border-color;
+  border-radius: $radius-sm;
+  padding: $spacing-sm;
+  flex-shrink: 0;
+}
+
+.itemInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.itemBrand {
+  font-size: 0.75rem;
+  font-weight: $font-weight-bold;
+  text-transform: uppercase;
+  color: $text-muted;
+  letter-spacing: 0.05em;
+}
+
+.itemTitle {
+  font-size: 0.95rem;
+  font-weight: $font-weight-semibold;
+  color: $text-primary;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.itemMeta {
+  display: flex;
+  gap: $spacing-sm;
+  margin-top: $spacing-xs;
+  
+  .metaBadge {
+    font-size: 0.75rem;
+    background-color: $bg-secondary;
+    color: $text-secondary;
+    padding: 2px $spacing-sm;
+    border-radius: 4px;
+    font-weight: $font-weight-medium;
+  }
+}
+
+.itemActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: $spacing-md;
+}
+
+.qtyControls {
+  display: flex;
+  align-items: center;
+  border: 1px solid $border-color;
+  border-radius: $radius-sm;
+  background-color: $bg-primary;
+}
+
+.qtyBtn {
+  width: 28px;
+  height: 28px;
+  @include flex-center;
+  color: $text-secondary;
+  transition: color $transition-fast;
+  
+  &:hover:not(:disabled) {
+    color: $primary;
+  }
+  
+  &:disabled {
+    opacity: 0.3;
+  }
+}
+
+.qtyVal {
+  font-size: 0.85rem;
+  font-weight: $font-weight-bold;
+  width: 28px;
+  text-align: center;
+}
+
+.removeBtn {
+  color: $text-muted;
+  width: 32px;
+  height: 32px;
+  @include flex-center;
+  border-radius: $radius-round;
+  transition: background-color $transition-fast, color $transition-fast;
+  
+  &:hover {
+    background-color: $danger-light;
+    color: $danger;
+  }
+}
+
+.itemPrice {
+  text-align: right;
+  font-weight: $font-weight-bold;
+  font-size: 1rem;
+  color: $text-primary;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  
+  .unitPrice {
+    font-size: 0.75rem;
+    color: $text-muted;
+    font-weight: $font-weight-regular;
+  }
+}
+
+.footer {
+  padding: $spacing-lg;
+  border-top: 1px solid $border-color;
+  background-color: $bg-primary;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.summaryRow {
+  @include flex-between;
+  font-size: 0.95rem;
+  color: $text-secondary;
+  
+  .summaryVal {
+    font-weight: $font-weight-semibold;
+    color: $text-primary;
+    
+    &.freeShipping {
+      color: $text-muted;
+      font-size: 0.85rem;
+      font-weight: $font-weight-regular;
+    }
+  }
+}
+
+.divider {
+  border: 0;
+  border-top: 1px solid $border-color;
+  margin: $spacing-xs 0;
+}
+
+.grandTotalRow {
+  color: $text-primary;
+  font-weight: $font-weight-bold;
+  font-size: 1.1rem;
+  
+  .grandTotalVal {
+    font-size: 1.35rem;
+    color: $primary;
+  }
+}
+
+.checkoutBtn {
+  background-color: $primary;
+  color: $white;
+  width: 100%;
+  padding: $spacing-lg;
+  border-radius: $radius-md;
+  font-size: 1rem;
+  font-weight: $font-weight-bold;
+  text-align: center;
+  box-shadow: $shadow-md;
+  transition: background-color $transition-fast, transform $transition-fast;
+  
+  &:hover {
+    background-color: $primary-hover;
+    transform: translateY(-2px);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+}

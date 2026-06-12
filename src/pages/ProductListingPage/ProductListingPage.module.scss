@@ -1,0 +1,378 @@
+@import '../../styles/variables';
+@import '../../styles/mixins';
+
+.page {
+  min-height: calc(100vh - #{$navbar-height});
+  display: flex;
+  flex-direction: column;
+}
+
+// Hero section
+.hero {
+  background: radial-gradient(circle at 80% 20%, hsl(245, 50%, 98%) 0%, hsl(210, 45%, 96%) 100%);
+  border-bottom: 1px solid $border-color;
+  padding: $spacing-xxl 0;
+  overflow: hidden;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, rgba(255, 255, 255, 0) 70%);
+    border-radius: $radius-round;
+    pointer-events: none;
+  }
+}
+
+.heroContainer {
+  display: flex;
+  align-items: center;
+}
+
+.heroContent {
+  max-width: 650px;
+  animation: fadeIn 0.6s ease-out;
+}
+
+.heroSubtitle {
+  font-size: 0.85rem;
+  font-weight: $font-weight-bold;
+  text-transform: uppercase;
+  color: $primary;
+  letter-spacing: 0.2em;
+  display: inline-block;
+  margin-bottom: $spacing-sm;
+}
+
+.heroTitle {
+  font-family: 'Outfit', sans-serif;
+  font-size: 3rem;
+  font-weight: 800;
+  line-height: 1.15;
+  color: $text-primary;
+  letter-spacing: -0.03em;
+  margin-bottom: $spacing-md;
+
+  @include mobile {
+    font-size: 2.2rem;
+  }
+}
+
+.heroDescription {
+  font-size: 1.1rem;
+  color: $text-secondary;
+  line-height: 1.6;
+}
+
+// Controls Section
+.controlsSection {
+  background-color: $card-bg;
+  border-bottom: 1px solid $border-color;
+  padding: $spacing-lg 0;
+  position: sticky;
+  top: $navbar-height;
+  z-index: 90;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.01);
+}
+
+.controlsWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-md;
+  flex-wrap: wrap;
+
+  @include mobile {
+    flex-direction: column;
+    align-items: stretch;
+    gap: $spacing-md;
+  }
+}
+
+.searchBox {
+  display: flex;
+  align-items: center;
+  border: 1px solid $border-color;
+  border-radius: $radius-md;
+  padding: 0 $spacing-md;
+  background-color: $bg-primary;
+  flex: 1;
+  min-width: 200px;
+  max-width: 350px;
+  transition: all $transition-fast;
+
+  @include mobile {
+    max-width: 100%;
+  }
+
+  .searchIcon {
+    color: $text-muted;
+    font-size: 1.1rem;
+    margin-right: $spacing-sm;
+  }
+
+  &:focus-within {
+    border-color: $primary;
+    background-color: $white;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  }
+}
+
+.searchInput {
+  height: 42px;
+  width: 100%;
+  font-size: 0.9rem;
+  color: $text-primary;
+
+  &::placeholder {
+    color: $text-muted;
+  }
+}
+
+.tabsContainer {
+  display: flex;
+  gap: $spacing-sm;
+  overflow-x: auto;
+  padding-bottom: 2px; // Avoid cutting outlines
+  @include custom-scrollbar;
+
+  @include mobile {
+    order: 3; // Put tabs below search/sort on mobile for better thumb reach
+  }
+}
+
+.tabBtn {
+  padding: 8px $spacing-lg;
+  border-radius: $radius-md;
+  font-size: 0.9rem;
+  font-weight: $font-weight-medium;
+  color: $text-secondary;
+  background-color: transparent;
+  border: 1px solid transparent;
+  transition: all $transition-fast;
+  white-space: nowrap;
+
+  &:hover {
+    color: $text-primary;
+    background-color: $bg-primary;
+  }
+
+  &.activeTab {
+    background-color: $primary-light;
+    color: $primary;
+    border-color: rgba($primary, 0.2);
+    font-weight: $font-weight-semibold;
+  }
+}
+
+.sortContainer {
+  display: flex;
+  align-items: center;
+  border: 1px solid $border-color;
+  border-radius: $radius-md;
+  padding: 0 $spacing-md;
+  background-color: $white;
+  height: 44px;
+  transition: border-color $transition-fast;
+
+  .sortIcon {
+    color: $text-muted;
+    font-size: 0.95rem;
+    margin-right: $spacing-sm;
+  }
+
+  &:hover {
+    border-color: darken($border-color, 10%);
+  }
+}
+
+.sortSelect {
+  font-size: 0.9rem;
+  font-weight: $font-weight-medium;
+  color: $text-secondary;
+  cursor: pointer;
+  padding-right: $spacing-sm;
+
+  option {
+    background-color: $white;
+    color: $text-primary;
+  }
+}
+
+// Grid Section
+.gridSection {
+  padding: $spacing-xxl 0;
+  flex: 1;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $spacing-xl;
+  animation: fadeIn 0.4s ease-out;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @media (max-width: 820px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @include mobile {
+    grid-template-columns: 1fr;
+    gap: $spacing-md;
+  }
+}
+
+// Skeleton / Shimmer Card
+.skeletonCard {
+  background-color: $card-bg;
+  border: 1px solid $border-color;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  height: 380px;
+}
+
+.skeletonImage {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: $radius-sm;
+  background-color: $bg-secondary;
+}
+
+.skeletonContent {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  flex: 1;
+}
+
+.skeletonBrand {
+  width: 40%;
+  height: 12px;
+  border-radius: 4px;
+}
+
+.skeletonTitle {
+  width: 90%;
+  height: 18px;
+  border-radius: 4px;
+}
+
+.skeletonFooter {
+  margin-top: auto;
+  @include flex-between;
+}
+
+.skeletonPrice {
+  width: 30%;
+  height: 22px;
+  border-radius: 4px;
+}
+
+.skeletonBtn {
+  width: 40px;
+  height: 40px;
+  border-radius: $radius-md;
+}
+
+// Error Container
+.errorContainer {
+  @include flex-center;
+  flex-direction: column;
+  text-align: center;
+  padding: $spacing-xxl 0;
+  color: $text-secondary;
+
+  .errorIcon {
+    font-size: 3.5rem;
+    color: $danger;
+    margin-bottom: $spacing-md;
+  }
+
+  h3 {
+    font-family: 'Outfit', sans-serif;
+    color: $text-primary;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: $spacing-sm;
+  }
+
+  p {
+    font-size: 1rem;
+    max-width: 400px;
+    margin-bottom: $spacing-xl;
+  }
+}
+
+.retryBtn {
+  background-color: $text-primary;
+  color: $white;
+  padding: $spacing-md $spacing-xl;
+  border-radius: $radius-md;
+  font-weight: $font-weight-semibold;
+  @include flex-center;
+  gap: $spacing-sm;
+  box-shadow: $shadow-md;
+  transition: background-color $transition-fast, transform $transition-fast;
+
+  &:hover {
+    background-color: lighten($text-primary, 10%);
+    transform: translateY(-2px);
+  }
+
+  svg {
+    font-size: 1rem;
+  }
+}
+
+// Empty Container
+.emptyContainer {
+  @include flex-center;
+  flex-direction: column;
+  text-align: center;
+  padding: $spacing-xxl 0;
+  color: $text-secondary;
+
+  .emptyIcon {
+    font-size: 3.5rem;
+    color: $text-muted;
+    margin-bottom: $spacing-md;
+  }
+
+  h3 {
+    font-family: 'Outfit', sans-serif;
+    color: $text-primary;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: $spacing-sm;
+  }
+
+  p {
+    font-size: 1rem;
+    max-width: 400px;
+    margin-bottom: $spacing-xl;
+  }
+}
+
+.clearFiltersBtn {
+  background-color: transparent;
+  color: $primary;
+  border: 1px solid $primary;
+  padding: $spacing-md $spacing-xl;
+  border-radius: $radius-md;
+  font-weight: $font-weight-semibold;
+  transition: all $transition-fast;
+
+  &:hover {
+    background-color: $primary-light;
+  }
+}
