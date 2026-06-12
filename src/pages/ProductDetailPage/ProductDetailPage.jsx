@@ -18,6 +18,8 @@ const ProductDetailPage = () => {
   const [selectedColor, setSelectedColor] = useState('');
   const [selectedSize, setSelectedSize] = useState('');
   const [quantity, setQuantity] = useState(1);
+  const [isAdding, setIsAdding] = useState(false);
+  const [addError, setAddError] = useState(null);
 
   // Fetch product detail
   useEffect(() => {
@@ -84,17 +86,20 @@ const ProductDetailPage = () => {
       setSelectedSize(sizeToSet);
     });
 
-    // Sync back to URL parameters replacing current history state
-    setSearchParams(
-      { color: colorToSet, size: sizeToSet },
-      { replace: true }
-    );
+    // Sync back to URL parameters replacing current history state if they differ
+    if (queryColor !== colorToSet || querySize !== sizeToSet) {
+      setSearchParams(
+        { color: colorToSet, size: sizeToSet },
+        { replace: true }
+      );
+    }
   }, [product, searchParams, setSearchParams]);
 
   // Update selected variant in UI and URL
   const handleColorChange = (colorName) => {
     // Reset quantity to 1 when variant changes
     setQuantity(1);
+    setAddError(null);
 
     // Choose size that is available in new color, if current size is sold out in new color
     const newSizeMatrix = product.variants[colorName];
@@ -113,6 +118,7 @@ const ProductDetailPage = () => {
 
   const handleSizeChange = (sizeName) => {
     setQuantity(1);
+    setAddError(null);
     setSelectedSize(sizeName);
     setSearchParams({ color: selectedColor, size: sizeName }, { replace: true });
   };
@@ -148,9 +154,26 @@ const ProductDetailPage = () => {
   const isSoldOut = variantInfo.status === 'sold-out';
   const isLowStock = variantInfo.status === 'low-stock';
 
-  const handleAddToCart = () => {
-    if (!isSoldOut) {
+  const handleAddToCart = async () => {
+    if (isSoldOut || isAdding) return;
+
+    setIsAdding(true);
+    setAddError(null);
+
+    try {
+      // Simulate API call with 1.2s delay
+      await new Promise((resolve) => setTimeout(resolve, 1200));
+
+      // 25% chance of simulated network failure
+      if (Math.random() < 0.25) {
+        throw new Error('Network Error: Failed to add item to bag. Please try again.');
+      }
+
       addToCart(product, selectedColor, selectedSize, quantity);
+    } catch (err) {
+      setAddError(err.message || 'Failed to add item. Please try again.');
+    } finally {
+      setIsAdding(false);
     }
   };
 
@@ -274,12 +297,26 @@ const ProductDetailPage = () => {
               <button
                 className={styles.addToCartBtn}
                 onClick={handleAddToCart}
-                disabled={isSoldOut}
+                disabled={isSoldOut || isAdding}
               >
-                <FiShoppingBag />
-                <span>{isSoldOut ? 'Sold Out' : 'Add to Bag'}</span>
+                {isAdding ? (
+                  <>
+                    <div className={styles.btnSpinner} data-testid="add-btn-spinner" />
+                    <span>Adding to Bag...</span>
+                  </>
+                ) : (
+                  <>
+                    <FiShoppingBag />
+                    <span>{isSoldOut ? 'Sold Out' : 'Add to Bag'}</span>
+                  </>
+                )}
               </button>
             </div>
+            {addError && (
+              <div className={styles.addToCartError} data-testid="add-to-cart-error">
+                {addError}
+              </div>
+            )}
 
             <hr className={styles.divider} />
 
