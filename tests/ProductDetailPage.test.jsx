@@ -13,7 +13,7 @@ vi.mock('../src/context/CartContext', () => ({
   })
 }));
 
-// Mock the mock generator to have fixed deterministic variants for testing
+// Mock the mock generator 
 vi.mock('../src/utils/mockGenerator', () => ({
   getEnrichedProduct: vi.fn((product) => ({
     ...product,
@@ -87,7 +87,7 @@ describe('ProductDetailPage Variant Selector & CTA', () => {
   it('disables the Add to Bag CTA when a sold-out variant is selected', async () => {
     renderComponent('/product/1?color=Red&size=S');
 
-    // Wait for Add to Bag CTA button to be disabled and change label
+    // disabel cta button
     await waitFor(() => {
       const ctaButton = screen.getByRole('button', { name: /Sold Out/i });
       expect(ctaButton.disabled).toBe(true);
@@ -103,20 +103,16 @@ describe('ProductDetailPage Variant Selector & CTA', () => {
     // Select Blue S (low-stock, stock limit = 2)
     renderComponent('/product/1?color=Blue&size=S');
 
-    // Wait for product details to load and render the Blue S state
     await waitFor(() => {
       expect(screen.getByText('1')).toBeDefined();
     });
 
-    // Increase quantity once (should go to 2)
     const plusButton = screen.getByLabelText('Increase quantity');
     fireEvent.click(plusButton);
     expect(screen.getByText('2')).toBeDefined();
 
-    // The "+" button should now be disabled since stock limit is 2
     expect(plusButton.disabled).toBe(true);
 
-    // Attempting to click "+" again should keep quantity at 2
     fireEvent.click(plusButton);
     expect(screen.getByText('2')).toBeDefined();
   });
